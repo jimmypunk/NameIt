@@ -1,0 +1,11 @@
+*.txt~?
+*.out
+*.log
+*.pyc
+*.zip
+*.7z
+*.gz
+*.iso
+*.jar
+*.rar
+*.tar
