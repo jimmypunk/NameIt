@@ -14,7 +14,7 @@ class Trie(object):
                 node.children[char] = Trie()
 
             node = node.children[char]
-        node.word_count = word_count
+        node.word_count += word_count
 
     def contains(self, word):
         node = self

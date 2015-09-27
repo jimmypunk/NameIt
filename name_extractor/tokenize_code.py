@@ -3,7 +3,7 @@ import tokenize
 from token import *
 import keyword
 import __builtin__
-from collections import defaultdict
+from collections import Counter
 
 from peek_generator import PeekGenerator
 
@@ -17,7 +17,7 @@ def analyze_code(filename):
     tokengen = tokenize.generate_tokens(fp.readline)
     tokengen = PeekGenerator(tokengen)
     last_token = None
-    name_freq = defaultdict(int)
+    name_freq = Counter()
     class_set = set()
     method_set = set()
     for token in tokengen:
