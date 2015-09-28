@@ -1,0 +1,22 @@
+<h1>"{{ word }}" appears in ...</h1>
+<ul>
+{% for record in records %}
+    <div style="margin-bottom: 50px;">
+        <p class="star"> <img width="10" alt="Star" src="/static/img/star.png"> {{record.repo.repo_info.stargazers_count}}</p>
+        <!--img src="{{record.repo.repo_info.owner.avatar_url}}" width="20" height="20" style="margin-top:2px"-->
+        
+        <h3 style="margin-top:0;margin-bottom:4px;">
+            <a href="{{record.repo.repo_info.html_url}}"
+            style="text-decoration:none">{{record.repo.repo_info.full_name}}</a>
+        </h3>
+        
+        <p class="desc">{{record.repo.repo_info.description}}</p>
+
+        <p>Total appear count : {{record.total}}</p>
+        {% for pair in record.count_in_files %}
+        <p><a href="{{record.repo.repo_info.html_url}}/blob/master/{{pair.0}}">{{pair.0}}</a>:&nbsp;&nbsp;{{pair.1}} times</p>
+        {% endfor %}
+    </div>
+{% endfor %}
+</ul>
+<link rel="stylesheet" href="static/css/word_profile.css"/>
