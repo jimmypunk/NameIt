@@ -11,29 +11,38 @@ DEFINE = "def"
 CLASS = "class"
 preserved_word = keyword.kwlist + dir(__builtin__)
 
+TYPE = 1
+
 
 def analyze_code(filename):
+    # analyze the name type(variable, class, method) and frequency
+
     fp = open(filename)
     tokengen = tokenize.generate_tokens(fp.readline)
     tokengen = PeekGenerator(tokengen)
     last_token = None
+
     name_freq = Counter()
     class_set = set()
     method_set = set()
+
     for token in tokengen:
+        # here we care only about token_type, and tok_str
         token_type, tok_str, _, _, context = token
         if token_type == NAME and tok_str not in preserved_word:
             # look_head_token = tokengen.peek
             name_freq[tok_str] += 1
-            if last_token and last_token[1] == CLASS:
+
+            if last_token and last_token[TYPE] == CLASS:
                 class_set.add(tok_str)
 
-            if last_token and last_token[1] == DEFINE:
+            if last_token and last_token[TYPE] == DEFINE:
                 method_set.add(tok_str)
 
         last_token = token
 
     name_set = set(name_freq.keys())
+    # assume there is no intersect between variable and class name + method name
     variable_set = name_set - class_set - method_set
 
     fp.close()

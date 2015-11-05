@@ -1,44 +1,56 @@
 import os
-from tokenize_code import analyze_code
-from collections import Counter
-from collections import defaultdict
 import urllib
 import json
+import shelve
+from collections import Counter
+from collections import defaultdict
+
+from tokenize_code import analyze_code
+
+CACHE_FILE = "/tmp/nameit.cache"
 
 
-def scan_dir(repo_path, func):
+def scan_dir(dirpath, func):
+
     name_counter = Counter()
-    dir_list = [repo_path]
+    dir_list = [dirpath]
+    variable_set = set()
+    class_set = set()
+    method_set = set()
     while dir_list:
         dir_path = dir_list.pop()
         for root, dirs, files in os.walk(dir_path):
             for f in files:
-                if f.split('.')[-1] != 'py':
+                if not is_python(f):
                     continue
 
                 filepath = os.path.join(root, f)
-                variable_set, class_set, method_set, name_freq = func(filepath)
+                v_set, c_set, m_set, name_freq = func(filepath)
+
+                variable_set = variable_set.union(v_set)
+                class_set = class_set.union(c_set)
+                method_set = method_set.union(m_set)
                 name_counter += name_freq
 
             dir_list += dirs
 
-    return name_counter
+    return variable_set, class_set, method_set, name_counter
 
 
-def scan_repo(repo_path):
-    word_freq_by_files = defaultdict(list)
-    for root, dirs, files in os.walk(repo_path):
-        for f in files:
-            if f.split('.')[-1] != 'py':
-                continue
-            filepath = os.path.join(root, f)
-            variable_set, class_set, method_set, name_freq = analyze_code(filepath)
-            _, _, _, name_freq = analyze_code(filepath)
-            for name, freq in name_freq.items():
-                relpath = os.path.relpath(filepath, repo_path)
-                word_freq_by_files[name].append((relpath, freq))
+def scan_repo(repo_path, enable_cache=True):
 
-    return word_freq_by_files
+    cache = shelve.open(CACHE_FILE)
+    if repo_path not in cache:
+        print 'scan dir %s'%repo_path
+        cache[repo_path] = scan_dir(repo_path, analyze_code)
+    
+    ret = cache[repo_path]
+    cache.close()
+    return ret
+
+
+def is_python(f):
+    return f.split('.')[-1] == 'py'
 
 
 def not_found_on_github(repo_info):
@@ -47,7 +59,7 @@ def not_found_on_github(repo_info):
 
 # example output:
 # {'code': [('data/urllib2.py', 23)], 'chain': [('data/urllib2.py', 2)], 'skip': [('data/urllib2.py', 4)], 'set_debuglevel': [('data/urllib2.py', 1)]}
-def crawl_repo(repo_link):
+def crawl_repo_info(repo_link):
     repo_api_url = repo_link.replace('github.com', 'api.github.com/repos')
     print "crawling from %s" % repo_api_url
     repo_info = json.loads(urllib.urlopen(repo_api_url).read())
@@ -60,6 +72,4 @@ def crawl_repo(repo_link):
 
 if __name__ == "__main__":
     print scan_repo("/tmp/clonedir")
-    # repo_link = sys.argv[1]
-    # print scan_dir("/tmp/exp_dir", analyze_code)
-    # crawl_repo(repo_link)
+    
