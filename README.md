@@ -1,7 +1,8 @@
-# NameIt
-a variable naming suggestion tool
+#NameIt 
+a variable naming suggestion tool. (Currently under development)
 
-# Idea of NameIt
+<img src="http://images.techhive.com/images/idge/imported/article/itw/2013/10/23/programmers_hardest_tasks-600x700-100521914-orig.jpg" width="400">
+
 Learning how to name variable from epic projects on GitHub.
 You can stay in the console and seek for inspirations without distraction.
 
