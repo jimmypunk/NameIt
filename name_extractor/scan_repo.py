@@ -3,7 +3,6 @@ import urllib
 import json
 import shelve
 from collections import Counter
-from collections import defaultdict
 
 from tokenize_code import analyze_code
 

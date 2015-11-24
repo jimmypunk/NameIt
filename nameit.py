@@ -10,7 +10,13 @@ from os import listdir
 from name_extractor.trie import Trie
 from name_extractor.scan_repo import scan_repo, CACHE_FILE
 
-REPO_DIR = '/tmp/exp_dir'
+XDG_CACHE_DIR = os.environ.get('XDG_CACHE_HOME',
+                               os.path.join(os.path.expanduser('~'), '.cache'))
+CACHE_DIR = os.path.join(XDG_CACHE_DIR, 'nameit')
+
+def enable_cache():
+    if not os.path.exists(CACHE_DIR):
+        os.makedirs(CACHE_DIR)
 
 
 def interactive_suggestion(suggest_trie):
@@ -23,6 +29,9 @@ def interactive_suggestion(suggest_trie):
 
 
 def load_trie():
+    """
+    Load trie from the repositories downloaded to local temp dir [REPO_DIR]
+    """
     repo_paths = [os.path.join(REPO_DIR, f) for f in listdir(REPO_DIR)]
     suggest_trie = Trie()
     for path in repo_paths:
